@@ -34,6 +34,7 @@
 #pragma mark - life cycle
 
 - (void)dealloc {
+    // If the current instance is released (possibly uncontrollable release), we need to restore the changes to external business.
     self.hiddenSourceObject = nil;
     [self setStatusBarHide:NO];
     [self removeObserverForSystem];

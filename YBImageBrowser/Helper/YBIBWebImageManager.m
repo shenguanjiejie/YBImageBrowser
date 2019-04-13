@@ -7,32 +7,20 @@
 //
 
 #import "YBIBWebImageManager.h"
-
-#if __has_include(<SDWebImage/SDWebImageManager.h>)
-#import <SDWebImage/SDWebImageManager.h>
+#if __has_include(<SDWebImage/SDWebImage.h>)
+#import <SDWebImage/SDWebImage.h>
 #else
-#import "SDWebImageManager.h"
+#import "SDWebImage.h"
 #endif
-
-#if __has_include(<SDWebImage/SDWebImageDownloader.h>)
-#import <SDWebImage/SDWebImageDownloader.h>
-#else
-#import "SDWebImageDownloader.h"
-#endif
-
-#if __has_include(<SDWebImage/SDWebImageDownloader.h>)
-#import <SDWebImage/SDImageCache.h>
-#else
-#import "SDImageCache.h"
-#endif
-
 @implementation YBIBWebImageManager
 
 #pragma mark public
 
 + (id)downloadImageWithURL:(NSURL *)url progress:(YBIBWebImageManagerProgressBlock)progress success:(YBIBWebImageManagerSuccessBlock)success failed:(YBIBWebImageManagerFailedBlock)failed {
     if (!url) return nil;
-    SDWebImageDownloadToken *token = [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:url options:SDWebImageDownloaderLowPriority progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
+    
+    SDWebImageDownloaderOptions options = SDWebImageDownloaderLowPriority | SDWebImageDownloaderAvoidDecodeImage;
+    SDWebImageDownloadToken *token = [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:url options:options progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL * _Nullable targetURL) {
         if (progress) {
             progress(receivedSize, expectedSize, targetURL);
         }
@@ -69,7 +57,7 @@
     if (!cacheKey) QUERY_CACHE_FAILED
 #undef QUERY_CACHE_FAILED
         
-    SDImageCacheOptions options = SDImageCacheQueryMemoryData;
+    SDImageCacheOptions options = SDImageCacheQueryMemoryData | SDImageCacheAvoidDecodeImage;
     [[SDImageCache sharedImageCache] queryCacheOperationForKey:cacheKey options:options done:^(UIImage * _Nullable image, NSData * _Nullable data, SDImageCacheType cacheType) {
         if (completed) {
             completed(image, data);
